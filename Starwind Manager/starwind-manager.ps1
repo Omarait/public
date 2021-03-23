@@ -76,7 +76,7 @@ Function connect_starwind {
 	catch {
 		# En cas d'erreur, afficher le message et attendre la validation
 		Write-host $_ -foreground red
-		Read-host "Press enter to return to menu"
+		Read-host "Press enter to return to go back"
 	}
 }
 
@@ -132,9 +132,9 @@ Function list_all_targets {
 Function enumdevices {
 	Clear-host
 	try { list_targets_and_devices_attached } catch { Write-host "***No devices attached to a target***" -foreground red } 
-	try { list_orphan_targets } catch { Write-host "***No orphan targets found***" -foreground red } 
-	try { list_orphan_devices } catch { Write-host "***No orphan devices found***" -foreground red } 
-	Read-host "Press enter to return to menu"
+	try { list_orphan_targets } catch { Write-host "***Nothing to display***" -foreground red } 
+	try { list_orphan_devices } catch { Write-host "***Nothing to display***" -foreground red } 
+	Read-host "Press enter to return to go back"
 }
 
 Function createdevice {
@@ -152,7 +152,7 @@ Function createdevice {
 	Write-host "#################################" -foreground yellow
 	$global:server.disconnect()
 	$global:server.connect()
-	Read-host "Press enter to return to menu"
+	Read-host "Press enter to return to go back"
 }
 
 Function removedevice {
@@ -171,8 +171,8 @@ Function removedevice {
 		$global:server.disconnect()
 		$global:server.connect()
 		
-	} catch { Write-host "***No orphan devices found***" -foreground red } 
-	Read-Host "Press enter to return to menu"
+	} catch { Write-host "***Nothing to display***" -foreground red } 
+	Read-Host "Press enter to return to go back"
 }
 
 Function createtarget {
@@ -185,7 +185,7 @@ Function createtarget {
 	Write-host "#################################" -foreground yellow
 	$global:server.disconnect()
 	$global:server.connect()
-	Read-host "Press enter to return to menu"
+	Read-host "Press enter to return to go back"
 }
 
 Function removetarget {
@@ -201,8 +201,8 @@ Function removetarget {
 		catch { write-host -Foreground Red $_ }
 		$global:server.disconnect()
 		$global:server.connect()
-	} catch { Write-host "***No orphan targets found***" -foreground red }
-	Read-Host "Press enter to return to menu"
+	} catch { Write-host "***Nothing to display***" -foreground red }
+	Read-Host "Press enter to return to go back"
 }
 
 Function extenddevice {
@@ -222,7 +222,7 @@ Function extenddevice {
 			write-host "Device extended" -foreground yellow
 		} catch { write-host $_ }
 	} catch { Write-host "***No devices found***" -foreground red }
-	Read-Host "Press enter to return to menu"
+	Read-Host "Press enter to return to go back"
 }
 
 Function detach_attach {
@@ -237,8 +237,8 @@ Function detach_attach {
 			$target.detachdevice($deviceName)
 			$global:server.disconnect()
 			$global:server.connect()
-			write-host "Check result :" -foreground yellow
-			list_targets_and_devices_attached
+			Read-host "Press enter to check result :"
+			enumdevices
 		} catch { Write-host "Nothing found" -foreground red } 
 	}
 	write-host "#################################" -foreground yellow
@@ -250,13 +250,13 @@ Function detach_attach {
 			$deviceId = Read-Host "Enter Device id"
 			$target = $global:server.Targets | Where-Object Id -like $targetId
 			$target.attachdevice($deviceId)
-			$global:server.disconnect()
-			$global:server.connect()
+			$global:server.Disconnect()
+			$global:server.Connect()
 			Read-host "Press enter to check result :"
 			enumdevices
-		} catch { Write-host "No orphan targets or no orphan devices found" -foreground red }
+		} catch { Write-host "No orphan targets or Nothing to display" -foreground red }
 	}
-	Read-Host "Press enter to return to menu"
+	Read-Host "Press enter to return to go back"
 }
 
 # =======================================================
