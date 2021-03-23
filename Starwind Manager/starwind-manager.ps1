@@ -20,11 +20,6 @@ $server = $null
 $srv = ""
 $port = ""
 
-# =======================================================
-# Fonction principale : startprogram
-# Utilisation : se lance au démarrage du script, fait office de menu principal
-# =======================================================
-
 Function startprogram {
 	do {
 		# Affichage informatif sur le serveur en cours d'utilisation
@@ -40,7 +35,7 @@ Function startprogram {
 		Write-host "[5] Remove Device"
 		Write-host "[6] Create Target"
 		Write-host "[7] Remove Target"
-		Write-host "[8] Detach or Attach device to target"
+		Write-host "[8] Detach or Attach device to a target"
 		Write-host "[9] Disconnect and close"
 		Write-host "##################################" -foreground yellow
 		Write-host ""
@@ -64,11 +59,6 @@ Function startprogram {
 	while (!$close)
 }
 
-# =======================================================
-# Fonction connect_starwind
-# Utilisation : Demande à l'utilisateur les informations pour la connexion au serveur
-# =======================================================
-
 Function connect_starwind {
 
 	try {
@@ -90,11 +80,6 @@ Function connect_starwind {
 	}
 }
 
-# =======================================================
-# Fonction disconnect_starwind
-# Utilisation : Déconnexion du serveur
-# =======================================================
-
 Function disconnect_starwind {	
 	# Déconnexion du serveur
 	$global:server.Disconnect()
@@ -109,7 +94,7 @@ Function list_targets_and_devices_attached {
 	if ($list) { $list } else { Write-host "Nothing found" -foreground red }
 }
 
-Function list_targets_without_devices {
+Function list_orphan_targets {
 	# Affichage des targets sans device
 	$targetsToExclude = @()
 	foreach ($device in $global:server.Devices | Where-Object TargetId -notlike "empty") {
@@ -144,24 +129,13 @@ Function list_all_targets {
 	if ($list) { $list } else { Write-host "No target found" -foreground red }
 }
 
-
-# =======================================================
-# Fonction enumdevices
-# Utilisation : Affiche la liste des targets et des devices
-# =======================================================
-
 Function enumdevices {
 	Clear-host
 	list_targets_and_devices_attached
-	list_targets_without_devices
+	list_orphan_targets
 	list_orphan_devices
 	Read-host "Press enter to return to menu"
 }
-
-# =======================================================
-# Fonction createdevice
-# Utilisation : Demande à l'utilisateur les informations pour la création d'un nouveau device et d'un nouveau target
-# =======================================================
 
 Function createdevice {
 	Clear-host
@@ -199,11 +173,6 @@ Function removedevice {
 	Read-Host "Press enter to return to menu"
 }
 
-# =======================================================
-# Fonction createtarget
-# Utilisation : Demande à l'utilisateur les informations pour la création d'un nouveau target
-# =======================================================
-
 Function createtarget {
 	Clear-host
 	Write-host "#################################" -foreground yellow
@@ -219,7 +188,7 @@ Function createtarget {
 
 Function removetarget {
 	Clear-Host
-	list_targets_without_devices
+	list_orphan_targets
 	$name = Read-Host "Enter the target's name to remove"
 	try {
 		Remove-Target -server $global:server -name $name -force $true
@@ -266,7 +235,7 @@ Function detach_attach {
 	}
 	write-host "#################################" -foreground yellow
 	if ((Read-Host "Do you want to attach a device from a target ? [Y to execute]") -like "Y") {
-		list_targets_without_devices
+		list_orphan_targets
 		list_orphan_devices
 		$targetId = Read-Host "Enter target id"
 		$deviceId = Read-Host "Enter Device id"
