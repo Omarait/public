@@ -91,7 +91,7 @@ Function list_targets_and_devices_attached {
 	$list = $global:server.Devices | Where-Object TargetId -notlike "empty" | Format-Table -AutoSize -Wrap -Property TargetId, TargetName, DeviceId, @{N = 'Device Name'; E = { $_.Name } }, @{N = 'Path'; E = { $_.File } }, @{N = 'Size MB'; E = { $_.Size / 1MB } }
 	Write-host "#################################" -foreground yellow
 	Write-host "Targets and devices attached" -foreground yellow
-	if ($list) { $list } else { Write-host "Nothing found" -foreground red }
+	if ($list) { $list } else { throw }
 }
 
 Function list_orphan_targets {
@@ -103,7 +103,7 @@ Function list_orphan_targets {
 	$list = $global:server.Targets | Where-Object Id -notin $targetsToExclude | Format-Table -AutoSize -Wrap -Property Id, Name
 	Write-host "#################################" -foreground yellow
 	Write-host "Targets wihout devices" -foreground yellow
-	if ($list) { $list } else { Write-host "Nothing found" -foreground red }
+	if ($list) { $list } else { throw }
 }
 
 Function list_orphan_devices {
@@ -111,14 +111,14 @@ Function list_orphan_devices {
 	$list = $global:server.Devices | Where-Object TargetId -like "empty" | Format-Table -AutoSize -Wrap  -Property DeviceId, @{N = 'Device Name'; E = { $_.Name } }, @{N = 'Path'; E = { $_.File } }, @{N = 'Size MB'; E = { $_.Size / 1MB } }
 	Write-host "#################################" -foreground yellow
 	Write-host "Devices not attached to a target" -foreground yellow
-	if ($list) { $list } else { Write-host "Nothing found" -foreground red }
+	if ($list) { $list } else { throw }
 }
 
 Function list_all_devices {
 	# Affichage des devices
 	$list = $global:server.Devices | Format-Table -AutoSize -Wrap  -Property DeviceId, @{N = 'Device Name'; E = { $_.Name } }, @{N = 'Path'; E = { $_.File } }, @{N = 'Size MB'; E = { $_.Size / 1MB } }
 	Write-host "#################################" -foreground yellow
-	if ($list) { $list } else { Write-host "No device found" -foreground red }
+	if ($list) { $list } else { throw }
 
 }
 
@@ -126,14 +126,14 @@ Function list_all_targets {
 	# Affichage des targets sans device
 	$list = $global:server.Targets | Format-Table -AutoSize -Wrap -Property Id, Name
 	Write-host "#################################" -foreground yellow
-	if ($list) { $list } else { Write-host "No target found" -foreground red }
+	if ($list) { $list } else { throw }
 }
 
 Function enumdevices {
 	Clear-host
-	list_targets_and_devices_attached
-	list_orphan_targets
-	list_orphan_devices
+	try { list_targets_and_devices_attached } catch { Write-host "***No devices attached to a target***" -foreground red } 
+	try { list_orphan_targets } catch { Write-host "***No orphan targets found***" -foreground red } 
+	try { list_orphan_devices } catch { Write-host "***No orphan devices found***" -foreground red } 
 	Read-host "Press enter to return to menu"
 }
 
@@ -157,19 +157,21 @@ Function createdevice {
 
 Function removedevice {
 	Clear-Host
-	list_orphan_devices
-	write-host "#################################" -foreground yellow
-	$id = Read-Host "Enter the device's id to remove"
-	try {
-		$devicefile = (Get-Device -server $global:server -id $id).file
-		Remove-Device -server $global:server -DeviceId $id -force $true
-		Remove-Item $devicefile
+	try { 
+		list_orphan_devices
 		write-host "#################################" -foreground yellow
-		write-host "Device removed" -foreground yellow
-	}
- catch { write-host -Foreground Red $_ }
-	$global:server.disconnect()
-	$global:server.connect()
+		$id = Read-Host "Enter the device's id to remove"
+		try {
+			$devicefile = (Get-Device -server $global:server -id $id).file
+			Remove-Device -server $global:server -DeviceId $id -force $true
+			Remove-Item $devicefile
+			write-host "#################################" -foreground yellow
+			write-host "Device removed" -foreground yellow
+		} catch { write-host -Foreground Red $_ }
+		$global:server.disconnect()
+		$global:server.connect()
+		
+	} catch { Write-host "***No orphan devices found***" -foreground red } 
 	Read-Host "Press enter to return to menu"
 }
 
@@ -179,7 +181,7 @@ Function createtarget {
 	Write-host "Create a new target"
 	# Entrée des informations du device à créer
 	$alias = Read-Host "Target alias"
-	New-Target -server $global:server -alias $alias
+	try { New-Target -server $global:server -alias $alias } catch { Write-Host -Foreground Red $_ }
 	Write-host "#################################" -foreground yellow
 	$global:server.disconnect()
 	$global:server.connect()
@@ -188,34 +190,38 @@ Function createtarget {
 
 Function removetarget {
 	Clear-Host
-	list_orphan_targets
-	$name = Read-Host "Enter the target's name to remove"
 	try {
-		Remove-Target -server $global:server -name $name -force $true
-		write-host "#################################" -foreground yellow
-		write-host "Target removed" -foreground yellow
-	}
- catch { write-host -Foreground Red $_ }
-	$global:server.disconnect()
-	$global:server.connect()
+		list_orphan_targets
+		$name = Read-Host "Enter the target's name to remove"
+		try {
+			Remove-Target -server $global:server -name $name -force $true
+			write-host "#################################" -foreground yellow
+			write-host "Target removed" -foreground yellow
+		}
+		catch { write-host -Foreground Red $_ }
+		$global:server.disconnect()
+		$global:server.connect()
+	} catch { Write-host "***No orphan targets found***" -foreground red }
 	Read-Host "Press enter to return to menu"
 }
 
 Function extenddevice {
 	Clear-Host
-	list_all_devices
-	write-host "#################################" -foreground yellow
-	$devicename = Read-Host "Device Name"
-	$size = Read-Host "Size in MB"
-	$device = Get-Device $global:server -name $deviceName
 	try {
-		$device.ExtendDevice($size)
-		$global:server.disconnect()
-		$global:server.connect()
-		Clear-Host
+		list_all_devices
 		write-host "#################################" -foreground yellow
-		write-host "Device extended" -foreground yellow
-	} catch { write-host $_ }
+		$devicename = Read-Host "Device Name"
+		$size = Read-Host "Size in MB"
+		$device = Get-Device $global:server -name $deviceName
+		try {
+			$device.ExtendDevice($size)
+			$global:server.disconnect()
+			$global:server.connect()
+			Clear-Host
+			write-host "#################################" -foreground yellow
+			write-host "Device extended" -foreground yellow
+		} catch { write-host $_ }
+	} catch { Write-host "***No devices found***" -foreground red }
 	Read-Host "Press enter to return to menu"
 }
 
@@ -223,28 +229,32 @@ Function detach_attach {
 	Clear-Host
 	write-host "#################################" -foreground yellow
 	if ((Read-Host "Do you want to detach a device from a target ? [Y to execute]") -like "Y") {
-		list_targets_and_devices_attached
-		$targetId = Read-Host "Enter target id"
-		$deviceName = Read-Host "Enter Device name"
-		$target = $global:server.Targets | Where-Object Id -like $targetId
-		$target.detachdevice($deviceName)
-		$global:server.disconnect()
-		$global:server.connect()
-		write-host "Check result :" -foreground yellow
-		list_targets_and_devices_attached
+		try {
+			list_targets_and_devices_attached
+			$targetId = Read-Host "Enter target id"
+			$deviceName = Read-Host "Enter Device name"
+			$target = $global:server.Targets | Where-Object Id -like $targetId
+			$target.detachdevice($deviceName)
+			$global:server.disconnect()
+			$global:server.connect()
+			write-host "Check result :" -foreground yellow
+			list_targets_and_devices_attached
+		} catch { Write-host "Nothing found" -foreground red } 
 	}
 	write-host "#################################" -foreground yellow
 	if ((Read-Host "Do you want to attach a device from a target ? [Y to execute]") -like "Y") {
-		list_orphan_targets
-		list_orphan_devices
-		$targetId = Read-Host "Enter target id"
-		$deviceId = Read-Host "Enter Device id"
-		$target = $global:server.Targets | Where-Object Id -like $targetId
-		$target.attachdevice($deviceId)
-		$global:server.disconnect()
-		$global:server.connect()
-		write-host "Check result :" -foreground yellow
-		list_targets_and_devices_attached
+		try { 
+			list_orphan_targets
+			list_orphan_devices
+			$targetId = Read-Host "Enter target id"
+			$deviceId = Read-Host "Enter Device id"
+			$target = $global:server.Targets | Where-Object Id -like $targetId
+			$target.attachdevice($deviceId)
+			$global:server.disconnect()
+			$global:server.connect()
+			Read-host "Press enter to check result :"
+			enumdevices
+		} catch { Write-host "No orphan targets or no orphan devices found" -foreground red }
 	}
 	Read-Host "Press enter to return to menu"
 }
