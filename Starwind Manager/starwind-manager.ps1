@@ -60,7 +60,7 @@ Function startprogram
 	    }
 	    Clear-host
     }
-    while ($close -eq $null)
+    while (!$close)
 }
 
 # =======================================================
