@@ -112,12 +112,21 @@ Function disconnect_starwind
 Function enumdevices
 {
 	Clear-host
-	Write-host "#################################" -foreground yellow
+
 	# Affichage des targets et des devices rattachés
+	Write-host "#################################" -foreground yellow
+	Write-host "Targets and devices attached" -foreground yellow
 	$global:server.Devices | Where-Object TargetId -notlike "empty" | Format-Table -AutoSize -Wrap -Property TargetId, TargetName, DeviceId, @{N='Device Name';E={$_.Name}}, @{N='Path';E={$_.File}}, @{N='Size MB';E={$_.Size/1MB}}
+	
+	# Affichage des targets sans device
+	Write-host "#################################" -foreground yellow
+	Write-host "Targets wihout devices" -foreground yellow
+	$targetsToExclude = $global:server.Devices | Where-Object TargetId -notlike "empty" | Select-Object TargetId
+	write-host $targetsToExclude
+	$global:server.Targets | Where-Object Id -notin $targetsToExclude | Format-Table -AutoSize -Wrap -Property Id, Name
+	
 	# Affichage des devices attachés à aucun target
 	Write-host "#################################" -foreground yellow
-	Write-host ""
 	Write-host "Devices not attached" -foreground yellow
 	$global:server.Devices | Where-Object TargetId -like "empty" | Format-Table -AutoSize -Wrap  -Property DeviceId, @{N='Device Name';E={$_.Name}}, @{N='Path';E={$_.File}}, @{N='Size MB';E={$_.Size/1MB}}
 	Read-host "Press enter to return to menu"
