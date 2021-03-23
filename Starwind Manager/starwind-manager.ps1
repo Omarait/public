@@ -76,7 +76,7 @@ Function connect_starwind {
 	catch {
 		# En cas d'erreur, afficher le message et attendre la validation
 		Write-host $_ -foreground red
-		Read-host "Press enter to return to go back"
+		Read-host "Press enter to go back"
 	}
 }
 
@@ -134,7 +134,7 @@ Function enumdevices {
 	try { list_targets_and_devices_attached } catch { Write-host "***No devices attached to a target***" -foreground red } 
 	try { list_orphan_targets } catch { Write-host "***Nothing to display***" -foreground red } 
 	try { list_orphan_devices } catch { Write-host "***Nothing to display***" -foreground red } 
-	Read-host "Press enter to return to go back"
+	Read-host "Press enter to go back"
 }
 
 Function createdevice {
@@ -152,7 +152,7 @@ Function createdevice {
 	Write-host "#################################" -foreground yellow
 	$global:server.disconnect()
 	$global:server.connect()
-	Read-host "Press enter to return to go back"
+	Read-host "Press enter to go back"
 }
 
 Function removedevice {
@@ -172,7 +172,7 @@ Function removedevice {
 		$global:server.connect()
 		
 	} catch { Write-host "***Nothing to display***" -foreground red } 
-	Read-Host "Press enter to return to go back"
+	Read-Host "Press enter to go back"
 }
 
 Function createtarget {
@@ -185,7 +185,7 @@ Function createtarget {
 	Write-host "#################################" -foreground yellow
 	$global:server.disconnect()
 	$global:server.connect()
-	Read-host "Press enter to return to go back"
+	Read-host "Press enter to go back"
 }
 
 Function removetarget {
@@ -202,7 +202,7 @@ Function removetarget {
 		$global:server.disconnect()
 		$global:server.connect()
 	} catch { Write-host "***Nothing to display***" -foreground red }
-	Read-Host "Press enter to return to go back"
+	Read-Host "Press enter to go back"
 }
 
 Function extenddevice {
@@ -222,7 +222,7 @@ Function extenddevice {
 			write-host "Device extended" -foreground yellow
 		} catch { write-host $_ }
 	} catch { Write-host "***No devices found***" -foreground red }
-	Read-Host "Press enter to return to go back"
+	Read-Host "Press enter to go back"
 }
 
 Function detach_attach {
@@ -256,7 +256,7 @@ Function detach_attach {
 			enumdevices
 		} catch { Write-host "No orphan targets or Nothing to display" -foreground red }
 	}
-	Read-Host "Press enter to return to go back"
+	Read-Host "Press enter to go back"
 }
 
 # =======================================================
