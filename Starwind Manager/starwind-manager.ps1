@@ -112,53 +112,14 @@ Function disconnect_starwind
 Function enumdevices
 {
 	Clear-host
-	# Pour chaque target trouvé sur le serveur
-	foreach($target in $global:server.Targets)
-	{
-		# Afficher le nom et l'alias
-		Write-host "#################################" -foreground yellow
-		Write-host ""
-		Write-host "Target" -foreground yellow
-		Write-host "------"
-		Write-host ""
-		$targetname = $target.name
-		$targetalias = $target.alias
-		Write-host "Name : $targetname"
-		Write-host "Alias : $targetalias"
-		Write-host ""
-		# Afficher le nom, le chemin de fichier et la taille des devices attachés au target
-		Write-host "Devices" -foreground yellow
-		Write-host "-------"
-		$i=0
-		foreach ($device in $target.devices)
-		{
-			$devicename = $device.name
-			$devicesize = $device.size
-			$devicefile = $device.file
-			Write-host "Device n° $i"
-			Write-host "Name : $devicename"
-			Write-host "File : $devicefile"
-			Write-host "Size : $devicesize"
-			Write-host "" 
-			$i++
-		}
-		Write-host ""
-		Write-host "#################################" -foreground yellow
-		Write-host ""
-	}
-	
+	Write-host "#################################" -foreground yellow
+	# Affichage des targets et des devices rattachés
+	$global:server.Devices | Where-Object TargetId -notlike "empty" | Format-Table -AutoSize -Wrap -Property TargetId, TargetName, DeviceId, @{N='Device Name';E={$_.Name}}, @{N='Path';E={$_.File}}, @{N='Size MB';E={$_.Size/1MB}}
 	# Affichage des devices attachés à aucun target
-	Write-host "Devices not attached to target" -foreground yellow
-	Write-host "-------"
+	Write-host "#################################" -foreground yellow
 	Write-host ""
-   	foreach($device in $global:server.devices)
-	{
-		if ($device.targetid -like "empty")
-		{
-			$device
-		}
-	}
-
+	Write-host "Devices not attached" -foreground yellow
+	$global:server.Devices | Where-Object TargetId -like "empty" | Format-Table -AutoSize -Wrap  -Property DeviceId, @{N='Device Name';E={$_.Name}}, @{N='Path';E={$_.File}}, @{N='Size MB';E={$_.Size/1MB}}
 	Read-host "Press enter to return to menu"
 }
 
