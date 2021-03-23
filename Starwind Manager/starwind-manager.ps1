@@ -122,7 +122,6 @@ Function enumdevices
 	Write-host "#################################" -foreground yellow
 	Write-host "Targets wihout devices" -foreground yellow
 	$targetsToExclude = $global:server.Devices | Where-Object TargetId -notlike "empty" | Select-Object TargetId
-	write-host $targetsToExclude
 	$global:server.Targets | Where-Object Id -notin $targetsToExclude | Format-Table -AutoSize -Wrap -Property Id, Name
 	
 	# Affichage des devices attachés à aucun target
@@ -163,10 +162,10 @@ Function removedevice
 	Write-Host "#################################" -foreground yellow
 	$global:server.Devices | Where-Object TargetId -like "empty" | Format-Table -AutoSize -Wrap  -Property DeviceId, @{N='Device Name';E={$_.Name}}, @{N='Path';E={$_.File}}, @{N='Size MB';E={$_.Size/1MB}}
 	write-host "#################################" -foreground yellow
-	$name = Read-Host "Enter the device's name to remove"
+	$id = Read-Host "Enter the device's id to remove"
 	try {
-		$devicefile = (Get-Device -server $global:server -name $name).file
-		Remove-Device -server $global:server -name $name -force $true
+		$devicefile = (Get-Device -server $global:server -id $id).file
+		Remove-Device -server $global:server -DeviceId $id -force $true
 		Remove-Item $devicefile
 		write-host "#################################" -foreground yellow
 		write-host "Device removed" -foreground yellow
