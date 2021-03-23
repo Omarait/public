@@ -127,8 +127,9 @@ Function enumdevices
 	
 	# Affichage des devices attachés à aucun target
 	Write-host "#################################" -foreground yellow
-	Write-host "Devices not attached" -foreground yellow
+	Write-host "Devices not attached to a target" -foreground yellow
 	$global:server.Devices | Where-Object TargetId -like "empty" | Format-Table -AutoSize -Wrap  -Property DeviceId, @{N='Device Name';E={$_.Name}}, @{N='Path';E={$_.File}}, @{N='Size MB';E={$_.Size/1MB}}
+	
 	Read-host "Press enter to return to menu"
 }
 
