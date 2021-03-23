@@ -176,7 +176,7 @@ Function createdevice
 	# Entrée des informations du device à créer
 	$filename = Read-Host "File Name"
 	$path = Read-Host "Path (exemple C:\Starwind\Storage)"
-	[int]$size = Read-Host "Size in Mo"
+	[int]$size = Read-Host "Size in MB"
 	$targetalias = Read-Host "Target Alias"
 
 	# Création du fichier
