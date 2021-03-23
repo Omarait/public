@@ -149,27 +149,16 @@ Function removedevice
 {
 	Clear-Host
 	Write-Host "#################################" -foreground yellow
-	foreach($device in $global:server.Devices)
-	{
-		$devicename = $device.name
-		$devicefile = $device.file
-		Write-host "Name : $devicename"
-		Write-host "File : $devicefile"
-		Write-host "-------------------" 
-	}
-
+	$global:server.Devices | Where-Object TargetId -like "empty" | Format-Table -AutoSize -Wrap  -Property DeviceId, @{N='Device Name';E={$_.Name}}, @{N='Path';E={$_.File}}, @{N='Size MB';E={$_.Size/1MB}}
 	write-host "#################################" -foreground yellow
 	$name = Read-Host "Enter the device's name to remove"
 	try {
-		$devicefile = (Get-Device -server $global:server -deviceId $global:server.GetDeviceID($name)).file
-		Remove-Device -server $global:server -deviceId $global:server.GetDeviceID($name) -force $true
+		$devicefile = (Get-Device -server $global:server -name $name).file
+		Remove-Device -server $global:server -name $name -force $true
 		Remove-Item $devicefile
-	} catch {}
-	write-host "#################################" -foreground yellow
-	write-host "Device removed" -foreground yellow
-	
-	$global:server.disconnect()
-	$global:server.connect()
+		write-host "#################################" -foreground yellow
+		write-host "Device removed" -foreground yellow
+	} catch {write-host -Foreground Red $_}
 	Read-Host "Press enter to return to menu"
 }
 
@@ -177,24 +166,14 @@ Function removetarget
 {
 	Clear-Host
 	Write-Host "#################################" -foreground yellow
-	foreach($target in $global:server.Targets)
-	{
-		$targetname = $target.name
-		$targetalias = $target.alias
-		Write-host "Name : $targetname"
-		Write-host "Alias : $targetalias"
-		Write-host "-------------------" 
-	}
-
+	$global:server.Targets | Format-Table -AutoSize -Wrap  -Property Id, Name
 	write-host "#################################" -foreground yellow
-	write-host ""
 	$name = Read-Host "Enter the target's name to remove"
-	
-	Remove-Target -server $global:server -name $name -force $true
-	
-	write-host "#################################" -foreground yellow
-	write-host "Target removed" -foreground yellow
-
+	try {
+		Remove-Target -server $global:server -name $name -force $true
+		write-host "#################################" -foreground yellow
+		write-host "Target removed" -foreground yellow
+	} catch {write-host -Foreground Red $_}
 	$global:server.disconnect()
 	$global:server.connect()
 	Read-Host "Press enter to return to menu"
