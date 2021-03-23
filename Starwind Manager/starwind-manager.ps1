@@ -131,33 +131,17 @@ Function enumdevices
 Function createdevice
 {
     Clear-host
+	Write-host "#################################" -foreground yellow
     Write-host "Create image file and a new target"
-	Write-host ""
-
 	# Entrée des informations du device à créer
 	$filename = Read-Host "File Name"
 	$path = Read-Host "Path (exemple C:\Starwind\Storage)"
 	[int]$size = Read-Host "Size in MB"
-	$targetalias = Read-Host "Target Alias"
-
 	# Création du fichier
-	New-ImageFile -server $global:server -path $path -fileName $filename -size $size
-    
+	New-ImageFile -server $global:server -path $path -fileName $filename -size $size    
 	# Création du device
-	$device = Add-ImageDevice -server $global:server -path $path -fileName $filename -sectorSize 512 -NumaNode 0
-    
-	# Création du target
-	New-Target -server $global:server -alias $targetalias -devices $device.Name
-
-	# Affichage du résultat
+	Add-ImageDevice -server $global:server -path $path -fileName $filename -sectorSize 512 -NumaNode 0
 	Write-host "#################################" -foreground yellow
-	Write-host "Result" -foreground yellow
-	$global:server.disconnect()
-	$global:server.connect()
-	$global:server.Targets | Where-Object alias -eq $targetalias
-	$global:server.Devices | Where-Object file -like "*$filename.img"
-	Write-host "#################################" -foreground yellow
-	
 	Read-host "Press enter to return to menu"
 }
 
