@@ -152,6 +152,8 @@ Function createdevice
 	# Création du device
 	Add-ImageDevice -server $global:server -path $path -fileName $filename -sectorSize 512 -NumaNode 0
 	Write-host "#################################" -foreground yellow
+	$global:server.disconnect()
+	$global:server.connect()
 	Read-host "Press enter to return to menu"
 }
 
@@ -169,6 +171,8 @@ Function removedevice
 		write-host "#################################" -foreground yellow
 		write-host "Device removed" -foreground yellow
 	} catch {write-host -Foreground Red $_}
+	$global:server.disconnect()
+	$global:server.connect()
 	Read-Host "Press enter to return to menu"
 }
 
