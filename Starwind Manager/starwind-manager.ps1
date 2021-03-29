@@ -140,7 +140,7 @@ Function enumdevices {
 Function createdevice {
 	Clear-host
 	Write-host "#################################" -foreground yellow
-	Write-host "Create image file and a new target"
+	Write-host "Create image file"
 	# Entrée des informations du device à créer
 	$filename = Read-Host "File Name"
 	$path = Read-Host "Path (exemple C:\Starwind\Storage)"
@@ -237,7 +237,7 @@ Function detach_attach {
 			$target.detachdevice($deviceName)
 			$global:server.disconnect()
 			$global:server.connect()
-			Read-host "Press enter to check result :"
+			Read-host "Press enter to check result"
 			enumdevices
 		} catch { Write-host "Nothing found" -foreground red } 
 	}
@@ -252,7 +252,7 @@ Function detach_attach {
 			$target.attachdevice($deviceId)
 			$global:server.Disconnect()
 			$global:server.Connect()
-			Read-host "Press enter to check result :"
+			Read-host "Press enter to check result"
 			enumdevices
 		} catch { Write-host "No orphan targets or Nothing to display" -foreground red }
 	}
