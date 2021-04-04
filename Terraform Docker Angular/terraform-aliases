@@ -1,0 +1,7 @@
+alias terr-init="docker run --rm -it --mount type=bind,src=/path/to/terraform/repo,dst=/terraform terraform terraform init"
+
+alias terr-exec="docker run -it --rm --mount type=bind,src=/path/to/terraform/repo,dst=/terraform --mount type=bindsrc=/path/to/sshkeys/,dst=/sshkeys terraform"
+
+alias terr-apply-projetx="docker run -it --rm --mount type=bind,src=/path/to/terraform/repo,dst=/terraform --mount type=bind,src=/path/to/sshkeys/,dst=/sshkeys terraform terraform apply -auto-approve -var-file=projetx/projetx.tfvars -state=projetx.tfstate"
+
+alias terr-destr-projetx="docker run -it --rm --mount type=bind,src=/path/to/terraform/repo,dst=/terraform --mount type=bind,src=/path/to/sshkeys/,dst=/sshkeys terraform terraform destroy -auto-approve -var-file=projetx/projetx.tfvars -state=projetx.tfstate"
